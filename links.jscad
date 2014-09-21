@@ -22,10 +22,10 @@ var large_defaults = {
 
 function getParameterDefinitions() {
   return [
-    { name: 'width_x', type: 'float', initial: 12, caption: "Width X (length)" },
-    { name: 'width_y', type: 'float', initial: 2, caption: "Width Y" },
-    { name: 'width_z', type: 'float', initial: 7, caption: "Width Z" },
-    { name: 'notch_z', type: 'float', initial: 1, caption: "Notch Z (size of tab)" },
+    { name: 'width_y', type: 'float', initial: 2, caption: "Height (Y)" },
+    { name: 'width_x', type: 'float', initial: 12, caption: "Length (X)" },
+    { name: 'width_z', type: 'float', initial: 7, caption: "Height (Z)" },
+    { name: 'notch_z', type: 'float', initial: 1, caption: "Notch (size of tab)" },
     { name: 'gap', type: 'float', initial: 0.4, caption: "Gap" },
     { name: 'r_peg', type: 'float', initial: 0.75, caption: "Peg Radius" },
     { name: 'n_links', type: 'float', initial: 24, caption: "Number of Links" },
@@ -68,7 +68,8 @@ function main(_p) {
   link = difference(link,cylinder.translate([dx/2+_p.gap,0,0]));
   cylinder = linear_extrude({height:_p.width_z},circle(_p.r_peg).center(true));
   link = union(link,cylinder.translate([-dx/2-_p.r_peg,0,0]));
-  var slice = cube([_p.r_peg*1.8,_p.width_y,_p.width_z]).center([true,true,false]).translate([dx/2+_p.gap,_p.width_y/2,0]);
+  var slice = cube([_p.r_peg*1.8,_p.width_y,_p.width_z]).center([true,true,false]);
+  slice = slice.translate([dx/2+_p.gap,_p.width_y/2,0]);
   dx = dx + _p.gap+_p.r_peg;
   out = [];
   for (var i=0; i<_p.n_links; i++){

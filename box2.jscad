@@ -28,7 +28,7 @@ function main() {
   var top = [top_plate];
   for (var i=1;i<top_h;i++) {
     drop = (top_h-i)/top_h;
-    top.push(top_plate.scale([drop,drop,0.5]).translate([0,0,1+i/2]));
+    top.push(top_plate.scale([drop,drop,0.5]).translate([0,0,0.5+i/2]));
   }
   top = union(top);
 
