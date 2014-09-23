@@ -66,7 +66,7 @@ function get_unit_cell(_d) {
     half_join.rotateZ(120),
     half_join.rotateZ(-120),
   ])
-  return unit_cell;
+  return unit_cell.center(true).translate([_d.clamp.l/2-_d.tri.ri,0,0]);
 }
 
 function main(p) {
@@ -78,20 +78,22 @@ function main(p) {
   _d.gap = p.gap;
   var unit_cell = get_unit_cell(_d);
   var bounds = unit_cell.getBounds();
-  _d.dx = 2*sin(60)*_d.tri.ro;
-  _d.dy = 2*cos(60)*_d.tri.ro*2;
+  rt = _d.tri.ro+_d.tri.ri
+  _d.dx = 2*cos(30)*rt;
+  _d.dy = 2*(rt+sin(30)*rt)+6;
   //unit_cell = difference(unit_cell,cube(100).center(true).translate([0,50,0]))
-  var y_shift = 0;
+  var y_shift = _d.tri.ro+3;
   var from_pattern = [];
-  for (var xi=0; xi<p.pattern.length; xi++) {
-    for (var yi=0; yi<p.pattern[xi].length; yi++) {
-      if (p.pattern[xi][yi] == 0) { continue; }
+  for (var row=0; row<p.pattern.length; row++) {
+    for (var col=0; col<p.pattern[row].length; col++) {
+      if (p.pattern[row][col] == 0) { continue; }
       t = unit_cell;
-      if (p.pattern[xi][yi] == -1) { t = t.rotateZ(60).translate([2*y_shift,0,0]); } // this translate is bs'd
-      t = t.translate([(xi-3)*_d.dy,(yi-2)*_d.dx,0]);
+      if (p.pattern[row][col] == -1) { t = t.rotateZ(180).translate([y_shift,0,0]); } // this translate is bs'd
+      t = t.translate([(row-3)*_d.dy,(col-2)*_d.dx,0]);
       from_pattern.push(t);
     }
   }
+  from_pattern = union(from_pattern);
   console.log("Completed in "+(new Date().valueOf()-start)/1000+" seconds");
   return from_pattern;
 }

@@ -22,6 +22,7 @@ var large_defaults = {
 
 function getParameterDefinitions() {
   return [
+    // The variable names need to be reconciled with the display names... not sure why it's broken
     { name: 'width_y', type: 'float', initial: 2, caption: "Height (Y)" },
     { name: 'width_x', type: 'float', initial: 12, caption: "Length (X)" },
     { name: 'width_z', type: 'float', initial: 7, caption: "Height (Z)" },
