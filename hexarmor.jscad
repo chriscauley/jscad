@@ -9,7 +9,7 @@ function getParameterDefinitions() {
     { name: 'tri_ro', type: 'float', initial: 12, caption: "Triangle Outer Radius" },
     { name: 'tri_ri', type: 'float', initial: 3.5, caption: "Triangle Inner Radius" },
     { name: 'gap', type: 'float', initial: 0.6, caption: "Gap" },
-    { name: 'pattern', type: 'custom', constructor: 'newCanvas', caption: "pattern"}
+    { name: 'pattern', type: 'custom', constructor: newCanvas, caption: "pattern"}
   ];
 }
 
