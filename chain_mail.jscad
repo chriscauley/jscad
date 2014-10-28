@@ -2,8 +2,11 @@ function getParameterDefinitions() {
   return [
     { name: 'd', type: 'float', initial: 4, caption: "Square Width/Height" },
     { name: 'ri', type: 'float', initial: 1, caption: "Square Parimeter Thickness" },
+    { name: 'gap', type: 'float', initial: 0.2, caption: "Gap" },
     { name: 'n_x', type: 'float', initial: 3, caption: "Number X" },
-    { name: 'n_y', type: 'float', initial: 5, caption: "Number Y" }
+    { name: 'n_y', type: 'float', initial: 5, caption: "Number Y" },
+    { name: 'top_style', type: 'choice', values: ['flat','pointy'], caption: 'Top Style' },
+    { name: 'color', type: 'choice', values: ["'murica",'default'], caption: 'Color Scheme' },
     /*{ name: 'hex_h', type: 'float', initial: 5, caption: "Hex Thickness" },
     { name: 'tri_ro', type: 'float', initial: 12, caption: "Triangle Outer Radius" },
     { name: 'tri_ri', type: 'float', initial: 3.5, caption: "Triangle Inner Radius" },
@@ -21,11 +24,13 @@ function main(p) {
   var cut = cube({size:[_h*2,_h*2,_h],center:true});
   unit = difference(
     unit,
-    cut.translate([0,0,-_h]),
-    cut.translate([0,0,_h])
+    cut.translate([0,0,-_h])
   );
+  if (p.top_style == 'flat') {
+    unit = difference(unit,cut.translate([0,0,_h]))
+  }
   mirrored = unit.mirroredY();
-  cut = cube([p.ri*0.2,_h*4,_h]).center(true).translate([0,0,_h/2]);
+  cut = cube([p.gap,_h*4,_h]).center(true).translate([0,0,_h/2]);
   cut_u = difference(unit,cut);
   cut_m = difference(mirrored,cut);
   _b = unit.getBounds();
@@ -33,7 +38,6 @@ function main(p) {
   var depth = _b[1].y-_b[0].y;
   var height = _b[1].z-_b[0].z;
   out = [];
-  //return [unit,cut];
   for (var i=0; i<p.n_x; i++) {
     for (var j=0; j<p.n_y*2; j++) {
       dx = (j%2 == 1)?0:width*0.6;
@@ -42,6 +46,8 @@ function main(p) {
       if (j == p.n_y*2-1) { u = cut_u }
       if (i == p.n_x-1 && j%2 == 0) { u = cut_m }
       t = [i*width*1.2+dx,Math.floor(j/2)*depth*0.7+dy,0];
+      var c = (j%2 == 1)?"red":"blue"
+      if (p.color == "'murica") { u = color(c,u); }
       out.push(u.translate(t).translate([-p.n_x*width/2,-p.n_y*depth/2,0]));
     }
   }
