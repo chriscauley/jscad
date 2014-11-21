@@ -8,6 +8,7 @@ function getParameterDefinitions() {
     { name: 'clamp_w', type: 'float', initial: 5, caption: "Clamp Width" },
     { name: 'tri_ro', type: 'float', initial: 12, caption: "Triangle Outer Radius" },
     { name: 'tri_ri', type: 'float', initial: 3.5, caption: "Triangle Inner Radius" },
+    { name: 'tri', type: 'choice', values: [3,4,5], caption: "Number of Sides" },
     { name: 'gap', type: 'float', initial: 0.6, caption: "Gap" },
     { name: 'pattern', type: 'custom', constructor: window.newCanvas, caption: "pattern"}
   ];
@@ -44,13 +45,18 @@ function generate_link(_d) {
 
 function get_unit_cell(_d) {
   var tri = torus3(_d.tri);
-  var tri_r2 = _d.tri.ro*sin(60); //distance to center of clamp
+  var theta = {3:60,4:45,5:36}[_d.tri.fno]
+  var tri_r2 = _d.tri.ro*sin(theta); //distance to center of clamp
   var tri_cut = linear_extrude({height:_d.clamp.w+_d.gap},circle(_d.tri.ri));
   tri_cut = tri_cut.rotateX(90).center(true).translate([-tri_r2,0,0]);
-  tri = difference(tri,tri_cut,tri_cut.rotateZ(120),tri_cut.rotateZ(-120));
+  var _u = [tri];
+  for (var i=0;i<_d.tri.fno;i++) {
+    _u.push(tri_cut.rotateZ(i*360/_d.tri.fno))
+  }
+  tri = difference(_u);
   _d.tri_inner = {ri:_d.tri.ri,ro:_d.tri.ro,fno:_d.tri.fno};
   var clamp_thickness = 1;
-  _d.tri_inner.ri = _d.tri.ri - clamp_thickness - _d.gap;
+  _d.tri_inner.ri = _d.tri.ri - clamp_thickness/2 - _d.gap;
   tri = union(tri,torus3(_d.tri_inner));
   
   var c = linear_extrude({height:_d.clamp.w+_d.gap},circle(_d.tri.ri-clamp_thickness+_d.gap/2)).center(true);
@@ -60,12 +66,11 @@ function get_unit_cell(_d) {
     join,
     clamp_hole //round hole
   );
-  var unit_cell = union([
-    tri,
-    half_join,
-    half_join.rotateZ(120),
-    half_join.rotateZ(-120),
-  ])
+  _u = [tri]
+  for (var i=0;i<_d.tri.fno;i++) {
+    _u.push(half_join.rotateZ(i*360/_d.tri.fno))
+  }
+  var unit_cell = union(_u);
   return unit_cell.center(true).translate([_d.clamp.l/2-_d.tri.ri,0,0]);
 }
 
@@ -75,13 +80,14 @@ function main(p) {
   _d.clamp.w = p.clamp_w;
   _d.tri.ri = p.tri_ri;
   _d.tri.ro = p.tri_ro;
+  _d.tri.fno = parseInt(p.tri);
   _d.gap = p.gap;
   var unit_cell = get_unit_cell(_d);
+  return difference(unit_cell,cube(100).center(true).translate([0,50,0]));
   var bounds = unit_cell.getBounds();
   rt = _d.tri.ro+_d.tri.ri
   _d.dx = 2*cos(30)*rt;
   _d.dy = 2*(rt+sin(30)*rt)+6;
-  //unit_cell = difference(unit_cell,cube(100).center(true).translate([0,50,0]))
   var y_shift = _d.tri.ro+3;
   var from_pattern = [];
   for (var row=0; row<p.pattern.length; row++) {
